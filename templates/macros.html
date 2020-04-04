@@ -1,0 +1,58 @@
+{% macro construct_form(form, btntext) %}
+
+    <form method="POST" id="user_form">
+        {{ form.hidden_tag() }}
+
+        {% for field in form if field.widget.input_type != 'hidden' %}
+            {% for error in field.errors %}
+                <span class="text-danger">{{ error }}</span>
+            {% endfor %}
+            {{ field(placeholder=field.label.text, class="form-control") }}
+            {% endfor %}
+
+        {% if btntext %}<button class="btn btn-primary btn-block btn-lg">{{ btntext }}</button>{% endif %}
+    </form>
+
+{% endmacro %}
+
+
+{% macro construct_follow_btn(user_type) %}
+
+    {% if g.user.is_following(user_type) %}
+        <form method="POST" action="/users/stop-following/{{ user_type.id }}">
+            <button class="btn btn-primary">Unfollow</button>
+        </form>
+        {% else %}
+            <form method="POST" action="/users/follow/{{ user_type.id }}">
+            <button class="btn btn-outline-primary">Follow</button>
+        </form>
+    {% endif %}
+
+{% endmacro %}
+
+
+{% macro construct_follow_page(user_type) %}
+
+    <div class="col-lg-4 col-md-6 col-12">
+        <div class="card user-card">
+            <div class="card-inner">
+                <div class="image-wrapper">
+                    <img src="{{ user_type.header_image_url }}" alt="" class="card-hero">
+                </div>
+            <div class="card-contents">
+    
+                <a href="/users/{{ user_type.id }}" class="card-link">
+                    <img src="{{ user_type.image_url }}" alt="Image for {{ user_type.username }}" class="card-image">
+                    <p>@{{ user_type.username }}</p>
+                </a>
+
+                {{ construct_follow_btn(user_type) }}
+
+            </div>
+              <p class="card-bio">{{ user_type.bio }}</p>
+            </div>
+
+        </div>
+    </div>
+    
+{% endmacro %}

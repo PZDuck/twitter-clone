@@ -1,0 +1,17 @@
+{% extends 'users/detail.html' %}
+
+{% block user_details %}
+  <div class="col-sm-9">
+    <div class="row">
+
+      {% for followed_user in user.following %}
+
+        {% import 'macros.html' as m %}
+        {{ m.construct_follow_page(followed_user) }}
+
+      {% endfor %}
+
+    </div>
+  </div>
+  
+{% endblock %}
