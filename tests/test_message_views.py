@@ -71,3 +71,48 @@ class MessageViewTestCase(TestCase):
 
             msg = Message.query.one()
             self.assertEqual(msg.text, "Hello")
+
+    def test_message_404(self):
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            
+            resp = c.get('/messages/0')
+
+            self.assertEqual(resp.status_code, 404)
+
+    def test_message_show(self):
+
+        msg = Message(text="test", user_id=self.testuser.id)
+
+        db.session.add(m)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            
+            msg = Message.query.filter(text="test").first()
+
+            resp = c.get(f'/messages/{m.id}')
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(msg.text, str(resp.data))
+    
+    def test_message_delete(self):
+
+        msg = Message(text="test", user_id=self.testuser.id)
+
+        db.session.add(m)
+        db.session.commit()
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            
+            msg = Message.query.filter(text="test").first()
+
+            resp = c.post(f'/messages/{msg.id}/delete', follow_redirects=True)
+            self.assertEqual(resp.status_code, 200)
+    
+    
