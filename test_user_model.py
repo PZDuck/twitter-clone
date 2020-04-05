@@ -15,7 +15,7 @@ from models import db, User, Message, Follows
 # before we import our app, since that will have already
 # connected to the database
 
-os.environ['DATABASE_URL'] = "postgresql:///warbler-test"
+os.environ['DATABASE_URL'] = "postgresql://postgres:password@localhost:5432/warbler_test"
 
 
 # Now we can import app
@@ -39,16 +39,16 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         Follows.query.delete()
 
-        user1 = User.signup("user1", "test@test.com", "testpass", None)
+        user1 = User.signup("user1", "testtest@test.com", "testpass", None)
         user2 = User.signup("user2", "newmail@test.com", "password", None)
 
         db.session.commit()
 
         self.user1 = user1
-        self.user1_id = User.query.filter(username="user1").first().id
+        self.user1_id = User.query.filter(User.username=="user1").first().id
 
         self.user2 = user2
-        self.user2_id = User.query.filter(username="user2").first().id
+        self.user2_id = User.query.filter(User.username=="user2").first().id
 
         self.client = app.test_client()
 
@@ -89,7 +89,7 @@ class UserModelTestCase(TestCase):
 
         db.session.commit()
 
-        test_user = User.query.filter(username="test_user").first()
+        test_user = User.query.filter(User.username=="test_user").first()
         self.assertIsNotNone(test_user)
         self.assertEqual(test_user.username, "test_user")
         self.assertEqual(test_user.email, "test@new.com")
