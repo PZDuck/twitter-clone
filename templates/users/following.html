@@ -1,17 +1,17 @@
 {% extends 'users/detail.html' %}
 
 {% block user_details %}
-  <div class="col-sm-9">
-    <div class="row">
+<div class="col-sm-9">
+  <div class="row">
 
-      {% for followed_user in user.following %}
+    {% for followed_user in user.following %}
 
-        {% import 'macros.html' as m %}
-        {{ m.construct_follow_page(followed_user) }}
+    {% import 'macros.html' as m %}
+    {{ m.construct_user_card(followed_user) }}
 
-      {% endfor %}
+    {% endfor %}
 
-    </div>
   </div>
-  
+</div>
+
 {% endblock %}

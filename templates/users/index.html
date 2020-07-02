@@ -1,41 +1,55 @@
 {% extends 'base.html' %}
 {% block content %}
-  {% if users|length == 0 %}
-    <h3>Sorry, no users found</h3>
-  {% else %}
-    <div class="row justify-content-end">
-      <div class="col-sm-9">
-        <div class="row">
-
-          {% for user in users %}
-
-            <div class="col-lg-4 col-md-6 col-12">
-              <div class="card user-card">
-                <div class="card-inner">
-                  <div class="image-wrapper">
-                    <img src="{{ user.header_image_url }}" alt="" class="card-hero">
-                  </div>
-                  <div class="card-contents">
-                    <a href="/users/{{ user.id }}" class="card-link">
-                      <img src="{{ user.image_url }}" alt="Image for {{ user.username }}" class="card-image">
-                      <p>@{{ user.username }}</p>
-                    </a>
-
-                    {% if g.user %}
-                      {% import 'macros.html' as m %}
-                      {{ m.construct_follow_btn(user) }}
-                    {% endif %}
-
-                  </div>
-                  <p class="card-bio">{{ user.bio }}</p>
-                </div>
-              </div>
-            </div>
-
-          {% endfor %}
-
+{% if users|length == 0 %}
+<h3>Sorry, no users found</h3>
+{% else %}
+<div class="row justify-content-end">
+  <aside class="col-md-4 col-lg-3 col-sm-12" id="home-aside">
+    <div class="card user-card">
+      <div>
+        <div class="image-wrapper">
+          <img src="{{ g.user.header_image_url }}" alt="" class="card-hero">
         </div>
+        <a href="/users/{{ g.user.id }}" class="card-link">
+          <img src="{{ g.user.image_url }}" alt="Image for {{ g.user.username }}" class="card-image">
+          <p>@{{ g.user.username }}</p>
+        </a>
+        <ul class="user-stats nav nav-pills">
+          <li class="stat">
+            <p class="small">Messages</p>
+            <h4>
+              <a href="/users/{{ g.user.id }}">{{ g.user.messages | length }}</a>
+            </h4>
+          </li>
+          <li class="stat">
+            <p class="small">Following</p>
+            <h4>
+              <a href="/users/{{ g.user.id }}/following">{{ g.user.following | length }}</a>
+            </h4>
+          </li>
+          <li class="stat">
+            <p class="small">Followers</p>
+            <h4>
+              <a href="/users/{{ g.user.id }}/followers">{{ g.user.followers | length }}</a>
+            </h4>
+          </li>
+        </ul>
       </div>
     </div>
-  {% endif %}
+  </aside>
+
+  <div class="col-md-9">
+    <div class="row">
+
+      {% for user in users %}
+
+      {% import 'macros.html' as m %}
+      {{ m.construct_user_card(user) }}
+
+      {% endfor %}
+
+    </div>
+  </div>
+</div>
+{% endif %}
 {% endblock %}
