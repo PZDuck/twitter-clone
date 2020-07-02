@@ -4,7 +4,7 @@ from sqlalchemy import exc
 
 from models import db, User, Message, Follows, Likes
 
-os.environ['DATABASE_URL'] = "postgresql://postgres:password@localhost:5432/warbler_test"
+os.environ['DATABASE_URL'] = "" # Setup databse URI
 
 from app import app
 
