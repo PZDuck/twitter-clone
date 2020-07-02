@@ -21,13 +21,14 @@ A small and simple twitter clone built with the use of Flask web framework. It m
 
 ## Installation
 
-In order to start this app on your local machine, you will need to set up a Python virtual environment, create a Postgres database (either provide a .env file with included database URI or manually insert DB URI in `app.py`) and run the server from the console
+In order to start this app on your local machine, you will need to set up a Python virtual environment, create a Postgres database (either provide a .env file with included database URI or manually insert DB URI in `app.py`), populate the database with provided mock data (optional) and run the server from the console
 
 ```
     > git clone https://github.com/PZDuck/twitter-clone.git
     > python -m venv .venv
     > pip install -r requirements.txt
     > source .venv/bin/activate
+    > python seed.py (optional)
     > flask run
 ```
 
