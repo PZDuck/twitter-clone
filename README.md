@@ -2,7 +2,7 @@
 
 <img src="landing.png" />
 
-A small and simple twitter clone build with the use of Flask web framework. It mimics the basic Twitter website functions such as basic authentication, following other users, posting own message, and "liking" messages of other users.
+A small and simple twitter clone built with the use of Flask web framework. It mimics the basic Twitter website functions such as basic authentication, following other users, posting own message, and "liking" messages of other users.
 
 ## Demo
 
