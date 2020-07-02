@@ -19,11 +19,24 @@ class Follows(db.Model):
 class Likes(db.Model):
     """Mapping user likes to messages"""
 
-    __tablename__ = 'likes' 
+    __tablename__ = 'likes'
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='cascade'))
     message_id = db.Column(db.Integer, db.ForeignKey('messages.id', ondelete='cascade'), unique=True)
+
+
+class Message(db.Model):
+    """An individual message"""
+
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.String(140), nullable=False)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+
+    user = db.relationship('User')
 
 
 class User(db.Model):
@@ -42,7 +55,8 @@ class User(db.Model):
 
     messages = db.relationship("Message")
 
-    followers = db.relationship("User",
+    followers = db.relationship(
+        "User",
         secondary="follows",
         primaryjoin=(Follows.user_being_followed_id == id),
         secondaryjoin=(Follows.user_following_id == id)
@@ -70,7 +84,7 @@ class User(db.Model):
         return len(found_user_list) == 1
 
     def is_following(self, other_user):
-        """Is this user following `other_use`?"""
+        """Is this user following `other_user`?"""
 
         found_user_list = [user for user in self.following if user == other_user]
         return len(found_user_list) == 1
@@ -108,32 +122,19 @@ class User(db.Model):
                 return user
 
         return False
-    
+
     @classmethod
     def change_password(cls, username, password, new_password):
         if password == new_password:
             return False
-            
+
         user = cls.query.filter_by(username=username).first()
-        user.password = bcrypt.generate_password_hash(new_password).decode('UTF-8')
+        user.password = bcrypt.generate_password_hash(
+            new_password).decode('UTF-8')
 
         db.session.add(user)
-        
+
         return user
-
-
-
-class Message(db.Model):
-    """An individual message"""
-
-    __tablename__ = 'messages'
-
-    id = db.Column(db.Integer, primary_key=True)
-    text = db.Column(db.String(140), nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow())
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-
-    user = db.relationship('User')
 
 
 def connect_db(app):

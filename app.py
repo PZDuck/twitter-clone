@@ -1,7 +1,6 @@
 import os
 
 from flask import Flask, render_template, request, flash, redirect, session, g, url_for, abort
-from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
 from forms import UserAddForm, LoginForm, MessageForm, UserEditForm
@@ -12,21 +11,17 @@ CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    os.environ.get('DATABASE_URL', 'postgresql://postgres:password@localhost:5432/warbler'))
-
+app.config['SQLALCHEMY_DATABASE_URI'] = (os.environ.get('DATABASE_URL', "postgresql://postgres:password@localhost:5432/warbler")) # Setup the databse URI in .env file or insert manually
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
-app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
-toolbar = DebugToolbarExtension(app)
+
+# app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = True
 
 connect_db(app)
 
-
 ##############################################################################
 # User signup/login/logout
-
 
 @app.before_request
 def add_user_to_g():
@@ -34,7 +29,6 @@ def add_user_to_g():
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
-
     else:
         g.user = None
 
@@ -51,6 +45,7 @@ def do_logout():
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
+# User routes
 
 @app.route('/signup', methods=["GET", "POST"])
 def signup():
@@ -73,7 +68,6 @@ def signup():
             return render_template('users/signup.html', form=form)
 
         do_login(user)
-
         return redirect("/")
 
     else:
@@ -175,7 +169,7 @@ def add_follow(follow_id):
 
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.route('/users/stop-following/<int:follow_id>', methods=['POST'])
@@ -185,9 +179,10 @@ def stop_following(follow_id):
 
     followed_user = User.query.get(follow_id)
     g.user.following.remove(followed_user)
+
     db.session.commit()
 
-    return redirect(f"/users/{g.user.id}/following")
+    return redirect(request.referrer)
 
 
 @app.route('/users/profile', methods=["GET", "POST"])
@@ -216,8 +211,10 @@ def profile():
             user.image_url = form.image_url.data or "/static/image/default-pic.png"
             user.header_image_url = form.header_image_url.data or "/static/image/warbler-hero.jpg"
             user.bio = form.bio.data
+            user.location = form.location.data
 
             db.session.commit()
+
             return redirect(f"/users/{user.id}")
         
         flash("Wrong password.", "danger")
@@ -253,18 +250,18 @@ def add_like(message_id):
     """Add message to the list of liked messages"""
     
     liked = Message.query.get_or_404(message_id)
+
     if liked.user_id == g.user.id:
         return abort(403)
     
     if liked in g.user.likes:
-        g.user.like = [like for like in g.user.likes if like != liked]
-
+        g.user.likes = [like for like in g.user.likes if like != liked]
     else:
         g.user.likes.append(liked)
     
     db.session.commit()
 
-    return redirect("/")
+    return redirect(request.referrer)
 
 ##############################################################################
 # Messages routes:
@@ -336,8 +333,6 @@ def not_found(error):
 
 ##############################################################################
 # Turn off all caching in Flask
-#   (useful for dev; in production, this kind of stuff is typically
-#   handled elsewhere)
 #
 # https://stackoverflow.com/questions/34066804/disabling-caching-in-flask
 
